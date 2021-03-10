@@ -12,14 +12,14 @@ func NewHTTPServer(ctx context.Context, endpoints Endpoints) http.Handler {
 	r := mux.NewRouter()
 	r.Use(commonMiddleware)
 
-	r.Methods("POST").Path("/user").Handler(httptransport.NewServer(
+	r.Methods("POST").Path("/create_burger").Handler(httptransport.NewServer(
 		endpoints.CreateBurger,
 		decodeCreateBurgerRequest,
 		encodeResponse,
 	))
 
-	r.Methods("GET").Path("/user/{id}").Handler(httptransport.NewServer(
-		endpoints.GetUser,
+	r.Methods("GET").Path("/burger/{id}").Handler(httptransport.NewServer(
+		endpoints.GetBurger,
 		decodeGetBurgerRequest,
 		encodeResponse,
 	))

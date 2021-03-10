@@ -25,7 +25,7 @@ func NewRepo(db *sql.DB, logger log.Logger) Repository {
 
 func (repo *repo) CreateBurger(ctx context.Context, burger Burger) error {
 	sql := `
-		INSERT INTO burgers(id, name)
+		INSERT INTO burgers_table(id, name)
 		VALUES ($1, $2)`
 
 	if burger.Name == "" {

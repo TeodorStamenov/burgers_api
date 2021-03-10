@@ -11,7 +11,7 @@ type Endpoints struct {
 	GetBurger    endpoint.Endpoint
 }
 
-func MakeEndpoint(s service) Endpoints {
+func MakeEndpoints(s Service) Endpoints {
 	return Endpoints{
 		CreateBurger: makeCreateBurgerEndpoint(s),
 		GetBurger:    makeGetBurgerEndpoint(s),
@@ -29,7 +29,7 @@ func makeCreateBurgerEndpoint(s Service) endpoint.Endpoint {
 func makeGetBurgerEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(GetBurgerRequest)
-		ok, err := s.CreateBurger(ctx, req.ID)
-		return GetBurgerResponse{Ok: ok}, err
+		name, err := s.GetBurger(ctx, req.ID)
+		return GetBurgerResponse{Name: name}, err
 	}
 }
