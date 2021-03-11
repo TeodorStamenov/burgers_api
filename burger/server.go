@@ -3,12 +3,17 @@ package burger
 import (
 	"context"
 	"io"
+	"log"
+	"net"
 	"net/http"
+	"strconv"
 
+	"github.com/TeodorStamenov/burgers_api/helpers"
 	httptransport "github.com/go-kit/kit/transport/http"
 	"github.com/gorilla/mux"
 )
 
+// NewHTTPServer function
 func NewHTTPServer(ctx context.Context, endpoints Endpoints) http.Handler {
 	r := mux.NewRouter()
 	r.Use(commonMiddleware)
@@ -34,7 +39,24 @@ func NewHTTPServer(ctx context.Context, endpoints Endpoints) http.Handler {
 
 func commonMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ip, _, err := net.SplitHostPort(r.RemoteAddr)
+		if err != nil {
+			log.Println(err.Error())
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
+		}
+
+		limiter := helpers.GetVisitor(ip)
+
 		w.Header().Add("Content-Type", "application/json")
+		w.Header().Add("x-ratelimit-limit", strconv.Itoa(limiter.GetLimit()))
+		w.Header().Add("x-ratelimit-remaining", strconv.Itoa(limiter.GetRestCalls()))
+
+		if limiter.Allow() == false {
+			http.Error(w, http.StatusText(429), http.StatusTooManyRequests)
+			return
+		}
+
 		next.ServeHTTP(w, r)
 	})
 }
