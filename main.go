@@ -24,9 +24,8 @@ const dbsource = "postgresql://postgres:admin@localhost:5432/burgers?sslmode=dis
 
 func main() {
 	// var httpAddr = flag.String("https", ":10433", "http listen address")
-	var httpAddr = flag.String("http", ":8080", "http listen address")
 	port := os.Getenv("PORT")
-	fmt.Println("PORT: ", port)
+	var httpAddr = flag.String("http", port, "http listen address")
 	var logger log.Logger
 	{
 		logger = log.NewLogfmtLogger(os.Stderr)
