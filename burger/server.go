@@ -2,6 +2,7 @@ package burger
 
 import (
 	"context"
+	"io"
 	"net/http"
 
 	httptransport "github.com/go-kit/kit/transport/http"
@@ -11,6 +12,10 @@ import (
 func NewHTTPServer(ctx context.Context, endpoints Endpoints) http.Handler {
 	r := mux.NewRouter()
 	r.Use(commonMiddleware)
+
+	r.Methods("GET").Path("/").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		io.WriteString(w, "Hello Heroku")
+	})
 
 	r.Methods("POST").Path("/create_burger").Handler(httptransport.NewServer(
 		endpoints.CreateBurger,
