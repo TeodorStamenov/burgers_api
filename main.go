@@ -25,7 +25,7 @@ const dbsource = "postgresql://postgres:admin@localhost:5432/burgers?sslmode=dis
 func main() {
 	// var httpAddr = flag.String("https", ":10433", "http listen address")
 	port := os.Getenv("PORT")
-	var httpAddr = flag.String("http", port, "http listen address")
+	// var httpAddr = flag.String("http", port, "http listen address")
 	var logger log.Logger
 	{
 		logger = log.NewLogfmtLogger(os.Stderr)
@@ -72,9 +72,9 @@ func main() {
 	endpoints := burger.MakeEndpoints(srv)
 
 	go func() {
-		fmt.Println("listening on port", *httpAddr)
+		fmt.Println("listening on port ", port)
 		handler := burger.NewHTTPServer(ctx, endpoints)
-		errs <- http.ListenAndServe(*httpAddr, handler)
+		errs <- http.ListenAndServe(":"+port, handler)
 		// errs <- http.ListenAndServeTLS(*httpAddr, "cert.pem", "key.pem", handler)
 	}()
 
