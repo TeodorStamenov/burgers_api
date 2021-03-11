@@ -21,7 +21,7 @@ import (
 )
 
 // const dbsource = "postgresql://postgres:admin@localhost:5432/burgers?sslmode=disable"
-const dbsource = "postgres://nlbfkiinwxjhhf:37ec1e6ac38312ef28cab753ee63ac1527d236fdc612839b4d88dd92a638b2f0@ec2-108-128-104-50.eu-west-1.compute.amazonaws.com:5432/d964uh4q48k8cq?sslmode=disable"
+const dbsource = "postgres://nlbfkiinwxjhhf:37ec1e6ac38312ef28cab753ee63ac1527d236fdc612839b4d88dd92a638b2f0@ec2-108-128-104-50.eu-west-1.compute.amazonaws.com:5432/d964uh4q48k8cq"
 
 func main() {
 	// var httpAddr = flag.String("https", ":10433", "http listen address")
