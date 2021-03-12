@@ -6,6 +6,9 @@ import (
 	"flag"
 	"fmt"
 
+	"github.com/TeodorStamenov/burgers_api/rest_api"
+	"github.com/TeodorStamenov/burgers_api/service"
+	"github.com/TeodorStamenov/burgers_api/storage"
 	_ "github.com/lib/pq"
 
 	"github.com/go-kit/kit/log"
@@ -16,8 +19,6 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-
-	"github.com/TeodorStamenov/burgers_api/burger"
 )
 
 // const dbsource = "postgresql://postgres:admin@localhost:5432/burgers?sslmode=disable"
@@ -59,11 +60,10 @@ func main() {
 
 	flag.Parse()
 	ctx := context.Background()
-	var srv burger.Service
+	var srv service.Service
 	{
-		repository := burger.NewRepo(db, logger)
-
-		srv = burger.NewService(repository, logger)
+		storage := storage.NewStorage(db, logger)
+		srv = service.NewService(storage, logger)
 	}
 
 	errs := make(chan error)
@@ -74,11 +74,11 @@ func main() {
 		errs <- fmt.Errorf("%s", <-c)
 	}()
 
-	endpoints := burger.MakeEndpoints(srv)
+	endpoints := rest_api.MakeEndpoints(srv)
 
 	go func() {
 		fmt.Println("listening on port ", port)
-		handler := burger.NewHTTPServer(ctx, endpoints)
+		handler := rest_api.NewHTTPServer(ctx, endpoints)
 		errs <- http.ListenAndServe(":"+port, handler)
 		// errs <- http.ListenAndServeTLS(*httpAddr, "cert.pem", "key.pem", handler)
 	}()

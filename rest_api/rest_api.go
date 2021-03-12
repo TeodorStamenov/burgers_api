@@ -1,4 +1,4 @@
-package burger
+package rest_api
 
 import (
 	"context"
@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/TeodorStamenov/burgers_api/helpers"
 	httptransport "github.com/go-kit/kit/transport/http"
 	"github.com/gorilla/mux"
 )
@@ -18,21 +17,38 @@ func NewHTTPServer(ctx context.Context, endpoints Endpoints) http.Handler {
 	r := mux.NewRouter()
 	r.Use(commonMiddleware)
 
-	r.Methods("GET").Path("/").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		io.WriteString(w, "Hello Heroku")
+	r.Methods(http.MethodGet).Path("/v2").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		io.WriteString(w, "Hello burger")
 	})
 
-	r.Methods("POST").Path("/create_burger").Handler(httptransport.NewServer(
+	r.Methods(http.MethodPost).Path("/v2/burger/create_burger").Handler(httptransport.NewServer(
 		endpoints.CreateBurger,
 		decodeCreateBurgerRequest,
 		encodeResponse,
 	))
 
-	r.Methods("GET").Path("/burger/{id}").Handler(httptransport.NewServer(
+	r.Methods(http.MethodGet).Path("/v2/burger/random").Handler(httptransport.NewServer(
+		endpoints.GetBurgerRandom,
+		decodeGetBurgerRandomRequest,
+		encodeResponseGetRandom,
+	))
+
+	r.Methods(http.MethodGet).Path("/v2/burger/{id}").Handler(httptransport.NewServer(
 		endpoints.GetBurger,
 		decodeGetBurgerRequest,
 		encodeResponse,
 	))
+
+	r.Methods(http.MethodGet).Path("/v2/burger").
+		Queries(
+			"page", "{page:[0-9,]+}",
+			"per_page", "{per_page:[0-9,]+}",
+			"place", "{place}").
+		Handler(httptransport.NewServer(
+			endpoints.GetBurgerPagination,
+			decodeGetBurgerPaginationRequest,
+			encodeResponseGetPagination,
+		))
 
 	return r
 }
@@ -46,7 +62,7 @@ func commonMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		limiter := helpers.GetVisitor(ip)
+		limiter := GetVisitor(ip)
 
 		w.Header().Add("Content-Type", "application/json")
 		w.Header().Add("x-ratelimit-limit", strconv.Itoa(limiter.GetLimit()))

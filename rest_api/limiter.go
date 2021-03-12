@@ -1,4 +1,4 @@
-package helpers
+package rest_api
 
 import (
 	"sync"
@@ -10,6 +10,7 @@ import (
 var visitors = make(map[string]*CustomLimiter)
 var mu sync.Mutex
 
+// CustomLimiter struct
 type CustomLimiter struct {
 	maxCalls     int
 	recieveCalls int
